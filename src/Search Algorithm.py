@@ -15,7 +15,6 @@ from file_monitor import monitor_file, load_excel_to_dataframe
 
 #load the environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 #load the excel file into the dataframe
 file_path = r"C:\Users\BSA-OliverJ'22\OneDrive\Desktop\OneDrive\Mapping\Hedge Fund Map (Personal).xlsm"

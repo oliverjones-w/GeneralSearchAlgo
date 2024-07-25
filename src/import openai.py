@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=api_key)
 import pandas as pd
 from fuzzywuzzy import fuzz
 import re
@@ -10,7 +12,6 @@ def read_api_key(file_path):
 
 # Read the OpenAI API key
 api_key = read_api_key('../OpenAI_API_Key.txt')
-openai.api_key = api_key
 
 # Define a mapping of common nicknames to formal names
 nickname_mapping = {
@@ -38,14 +39,12 @@ def standardize_name(name):
     return ' '.join(name_parts)
 
 def categorize_data(unstructured_text):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"Extract the following information from the text and assign to these categories: Name, Title, Strategy, Products, Firm, Region: \"{unstructured_text}\"",
-        max_tokens=100,
-        n=1,
-        stop=None,
-        temperature=0
-    )
+    response = client.completions.create(engine="text-davinci-003",
+    prompt=f"Extract the following information from the text and assign to these categories: Name, Title, Strategy, Products, Firm, Region: \"{unstructured_text}\"",
+    max_tokens=100,
+    n=1,
+    stop=None,
+    temperature=0)
     extracted_text = response.choices[0].text.strip()
     return extracted_text
 

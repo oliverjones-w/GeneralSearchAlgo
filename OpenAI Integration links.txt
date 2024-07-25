@@ -1,0 +1,2 @@
+https://learn.microsoft.com/en-us/windows/wsl/install
+https://github.com/openai/openai-python/discussions/742

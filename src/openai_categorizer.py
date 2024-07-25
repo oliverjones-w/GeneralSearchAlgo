@@ -1,13 +1,15 @@
-import openai
 import os
+from openai import OpenAI
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize the OpenAI client with the API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def categorize_text(unstructured_text):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {
@@ -24,7 +26,7 @@ def categorize_text(unstructured_text):
         stop=None,
         temperature=0.5
     )
-    return response.choices[0].message["content"].strip()
+    return response.choices[0].message.content.strip()
 
 def parse_categorized_text(categorized_text):
     lines = categorized_text.split('\n')
@@ -37,7 +39,14 @@ def parse_categorized_text(categorized_text):
 
 # Main function to get user input and categorize it
 def main():
-    unstructured_text = input("Enter the unstructured text to categorize:\n")
+    print("Enter the unstructured text to categorize. Type 'EOF' on a new line when you are done:")
+    lines = []
+    while True:
+        line = input()
+        if line.strip() == 'EOF':
+            break
+        lines.append(line)
+    unstructured_text = " ".join(lines)
     categorized_text = categorize_text(unstructured_text)
     print(f"Categorized text:\n{categorized_text}")
     parsed_data = parse_categorized_text(categorized_text)
@@ -45,3 +54,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
