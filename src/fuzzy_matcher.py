@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from fuzzywuzzy import process
+from fuzzywuzzy import fuzz
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -51,17 +51,29 @@ def fuzzy_match(parsed_data, df):
     # Mapping of parsed data keys to DataFrame columns
     column_mapping = {
         'Name': 'Name',
-        'Current Firm': 'Firm',
-        'Past Firms': 'Prior Firm',
+        'Current Firm': 'Current Firm',
+        'Past Firms': 'Past Firms',
         'Location': 'Location'
     }
-    matches = {}
-    for key, value in parsed_data.items():
-        column = column_mapping.get(key)
-        if column and column in df.columns:
-            best_match = process.extractOne(value, df[column], score_cutoff=80)  # Using a score cutoff to ensure relevance
-            matches[key] = best_match
-    return matches
+    
+    best_match = None
+    best_score = -1
+    
+    for i, row in df.iterrows():
+        total_score = 0
+        for key, value in parsed_data.items():
+            column = column_mapping.get(key)
+            if column and column in df.columns:
+                score = fuzz.ratio(value, str(row[column]))
+                total_score += score
+        if total_score > best_score:
+            best_score = total_score
+            best_match = row
+    
+    if best_match is not None:
+        return best_match, best_score
+    else:
+        return None, 0
 
 # Main function to get user input, categorize it, parse it, and match it against the DataFrame
 def main():
