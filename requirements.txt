@@ -6,3 +6,5 @@ python-dotenv
 watchdog
 python-levenshtein
 tabulate
+prettytable
+rich

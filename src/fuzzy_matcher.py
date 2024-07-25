@@ -3,6 +3,8 @@ import pandas as pd
 from fuzzywuzzy import fuzz
 from openai import OpenAI
 from dotenv import load_dotenv
+from rich.console import Console
+from rich.table import Table
 
 # Load environment variables from .env file
 load_dotenv()
@@ -13,10 +15,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Load the DataFrame
 file_path = r"C:\Users\BSA-OliverJ'22\OneDrive\Desktop\OneDrive\Mapping\HFM Data Frame.xlsx"  # Update this path with your actual file path
 df = pd.read_excel(file_path, sheet_name='Master')
-
-# Print the DataFrame to verify it is loaded correctly
-print("DataFrame loaded:")
-print(df.head())
 
 def categorize_text(unstructured_text):
     response = client.chat.completions.create(
@@ -56,8 +54,7 @@ def fuzzy_match(parsed_data, df):
         'Location': 'Location'
     }
     
-    best_match = None
-    best_score = -1
+    top_matches = []
     
     for i, row in df.iterrows():
         total_score = 0
@@ -66,14 +63,30 @@ def fuzzy_match(parsed_data, df):
             if column and column in df.columns:
                 score = fuzz.ratio(value, str(row[column]))
                 total_score += score
-        if total_score > best_score:
-            best_score = total_score
-            best_match = row
+        top_matches.append((row, total_score))
     
-    if best_match is not None:
-        return best_match, best_score
-    else:
-        return None, 0
+    # Sort matches by score in descending order and keep top 3
+    top_matches = sorted(top_matches, key=lambda x: x[1], reverse=True)[:3]
+    
+    return top_matches
+
+def display_matches_as_table(matches):
+    console = Console()
+    for i, (match, score) in enumerate(matches):
+        table = Table(title=f"Match #{i+1} (Total Score: {score})")
+        
+        # Columns to display
+        columns_to_display = ['Firm', 'Name', 'Function', 'Location', 'Strategy', 'Products', 'Reports To', 'ID']
+        standard_width = 30
+        
+        # Add specified columns with the standard width
+        for column in columns_to_display:
+            table.add_column(column, min_width=standard_width)
+        
+        # Add row with values for the specified columns
+        table.add_row(*[str(match[column]) if column in match.index else '' for column in columns_to_display])
+        
+        console.print(table)
 
 # Main function to get user input, categorize it, parse it, and match it against the DataFrame
 def main():
@@ -94,7 +107,10 @@ def main():
 
     # Perform fuzzy matching against the DataFrame
     matches = fuzzy_match(parsed_data, df)
-    print("Fuzzy matches:", matches)
+    if matches:
+        display_matches_as_table(matches)
+    else:
+        print("No match found.")
 
 if __name__ == "__main__":
     main()
