@@ -48,10 +48,10 @@ def parse_categorized_text(categorized_text):
 def fuzzy_match(parsed_data, df):
     # Mapping of parsed data keys to DataFrame columns
     column_mapping = {
-        'Name': 'Name',
-        'Current Firm': 'Current Firm',
-        'Past Firms': 'Past Firms',
-        'Location': 'Location'
+        'Name': ('Name', 3),  # Higher weight for Name
+        'Current Firm': ('Firm', 2),  # Medium weight for Firm
+        'Past Firms': ('Prior Firm', 1),  # Lower weight for Past Firms
+        'Location': ('Location', 1)  # Lower weight for Location
     }
     
     top_matches = []
@@ -59,10 +59,11 @@ def fuzzy_match(parsed_data, df):
     for i, row in df.iterrows():
         total_score = 0
         for key, value in parsed_data.items():
-            column = column_mapping.get(key)
-            if column and column in df.columns:
-                score = fuzz.ratio(value, str(row[column]))
-                total_score += score
+            if key in column_mapping:
+                column, weight = column_mapping[key]
+                if column in df.columns:
+                    score = fuzz.ratio(value, str(row[column])) * weight
+                    total_score += score
         top_matches.append((row, total_score))
     
     # Sort matches by score in descending order and keep top 3
