@@ -4,7 +4,7 @@ from watchdog.events import FileSystemEventHandler
 import pandas as pd
 
 def load_excel_to_dataframe(file_path):
-    df = pd.read_excel(file_path)
+    df = pd.read_excel(file_path, sheet_name='Master')
     return df
 
 class ExcelFileHandler(FileSystemEventHandler):

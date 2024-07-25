@@ -4,7 +4,6 @@ import sys
 import pandas as pd
 from dotenv import load_dotenv
 from fuzzywuzzy import fuzz
-from file_monitor import monitor_file, load_excel_to_dataframe
 import threading
 import time
 
@@ -22,12 +21,18 @@ file_path = r"C:\Users\BSA-OliverJ'22\OneDrive\Desktop\OneDrive\Mapping\Hedge Fu
 df = load_excel_to_dataframe(file_path)
 
 #print the headers
+print("Initial DataFrame:")
 print(df.head())
 
+# Update the dataframe when the file is modified
 def on_file_update():
     global df
-    df = load_excel_to_dataframe(file_path)
-    print(df.head())
+    try:
+        df = load_excel_to_dataframe(file_path)
+        print("Updated DataFrame:")
+        print(df.head())
+    except Exception as e:
+        print(f"An error occurred while updating the dataframe: {e}")
 
 # Monitor the Excel file for changes
 file_monitor_thread = threading.Thread(target=monitor_file, args=(file_path, on_file_update))
@@ -38,3 +43,5 @@ try:
         time.sleep(1)
 except KeyboardInterrupt:
     pass
+
+print("Script terminated.")
