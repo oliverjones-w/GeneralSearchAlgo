@@ -1,10 +1,1 @@
-openai
-pandas
-fuzzywuzzy
-openpyxl
-python-dotenv
-watchdog
-python-levenshtein
-tabulate
-prettytable
-rich
+ven

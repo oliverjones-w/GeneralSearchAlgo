@@ -48,7 +48,7 @@ def parse_categorized_text(categorized_text):
 def fuzzy_match(parsed_data, df):
     # Mapping of parsed data keys to DataFrame columns
     column_mapping = {
-        'Name': ('Name', 3),  # Higher weight for Name
+        'Name': ('Name', 5),  # Higher weight for Name
         'Current Firm': ('Firm', 2),  # Medium weight for Firm
         'Past Firms': ('Prior Firm', 1),  # Lower weight for Past Firms
         'Location': ('Location', 1)  # Lower weight for Location
