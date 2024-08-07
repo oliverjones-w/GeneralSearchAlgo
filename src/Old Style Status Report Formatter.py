@@ -48,8 +48,8 @@ def categorize_data(unstructured_text):
     | Goldman Sachs   | Vice President, TBA Trading               | 2021       | Present    |
     | Goldman Sachs   | Market Risk, US Mortgages & Credit        | 2018       | 2021       |
     | MKS Capital     | Founding Member                           | 2012       | 2018       |
-    | Nomura          |                                            | 2009       | 2012       |
-    | Lehman Brothers |                                            | 2001       | 2008       |
+    | Nomura          |                                           | 2009       | 2012       |
+    | Lehman Brothers |                                           | 2001       | 2008       |
 
     ### Education
 
