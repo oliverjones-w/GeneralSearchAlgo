@@ -1,58 +1,57 @@
 import os
 import pandas as pd
 from fuzzywuzzy import fuzz
+import xlsxwriter
 from openpyxl import Workbook
 
 # Load the data frames
-master_file_path = r"C:\Users\Bay Street - Larry B\Documents\Brielle\Programming\Projects\GeneralSearchAlgo\Workbooks\HFM Master Data Frame for matching.xlsx"
-people_moves_file_path = r"C:\Users\Bay Street - Larry B\Documents\Brielle\Programming\Projects\GeneralSearchAlgo\Workbooks\People Moves Data Frame.xlsx"
-id_list_file_path = "K:\Market Maps\IDStorage\HFMUniqueIDs.txt"
+id_list_file_path = "C:\\Users\\Bay Street - Larry B\\Documents\\Brielle\\Programming\\Projects\\GeneralSearchAlgo\\Workbooks\\IRMUniqueIDs.txt"
 
-df_master = pd.read_excel(master_file_path, sheet_name='Master')
-df_people_moves = pd.read_excel(people_moves_file_path, sheet_name='People Moves')
+irm_path = "K:\Market Maps\Interest Rates Map (K-Drive) (EXPERIMENTAL).xlsm"
+xls = pd.ExcelFile(irm_path)
+df_irm_master = pd.read_excel(xls, sheet_name='Master', header=2)
+df_irm_people_moves = pd.read_excel(xls, sheet_name='People Moves', header=2)
 
 # Converted macro code
 def generate_unique_id(existingIDs):
     maxNumber = 0000000
     
-    for ID in existingIDs:
-        if len(ID) != 0:
-            numericComp = int(ID[3:])
+    for id in existingIDs:
+        if len(id) != 0:
+            numericComp = int(id[3:])
             if numericComp > maxNumber:
                 maxNumber = numericComp
     
-    return ("HF_" + (maxNumber + 1))
+    return f"IR_{maxNumber + 1:07d}"
 
 
-def read_ids_from_file(file_path):
-    file_series = pd.read_csv(file_path, header=None, squeeze=True)
-
-    array = file_series.to_numpy()
+def read_ids_from_file(id_list_file_path):
+    file_series = pd.read_csv(id_list_file_path, header=None)
+    list = file_series[0].tolist()
     
-    return array
+    return list
     
-def write_id_to_file(file_path, id):
-    with open(file_path, 'a') as file:
-        file.write(id + '\n')
+def write_id_to_file(id_list_file_path, id):
+    with open(id_list_file_path, 'a') as file:
+        file.write('\n' + id)
 
 
-def fill_blank_ids(file_path):
-    id_col = df_master['ID']
+def fill_blank_ids():
+    id_col = df_irm_master['ID']
     
     # Read existing IDs from the file
-    existing_ids = read_ids_from_file(file_path)
-    
+    existing_ids = read_ids_from_file(id_list_file_path)
     # Iterate over the column and fill in blank cells
     for index, cell in id_col.items():
         if pd.isna(cell):
             new_id = generate_unique_id(existing_ids)
-            df_master.at[index, 'ID'] = new_id
+            df_irm_master.at[index, 'ID'] = new_id
             
             # Append the new ID to the list of existing IDs
             existing_ids.append(new_id)
             
             # Write  new ID to the txt file
-            write_id_to_file(file_path, new_id)
+            write_id_to_file(id_list_file_path, new_id)
         
 
 
@@ -119,7 +118,6 @@ matched_df = pd.DataFrame(matched_rows)
 """
 
 # Save the matched DataFrame to a new Excel workbook
-output_file_path = r"C:\Users\Bay Street - Larry B\Documents\Brielle\Programming\Projects\GeneralSearchAlgo\Workbooks\MS to PPLMVS ID Match Algo Output Book.xlsx"
-"""matched_df.to_excel(output_file_path, index=False)
-"""
-fill_blank_ids(output_file_path)
+with pd.ExcelWriter("k:\Market Maps\Interest Rates Map (K-Drive) (EXPERIMENTAL) - Copy.xlsm", engine='openpyxl') as writer:
+    df_irm_master.to_excel(writer, sheet_name='Master', index=False)
+    # matched_df.to_excel(writer, sheet_name='Matched Data', index=False)
