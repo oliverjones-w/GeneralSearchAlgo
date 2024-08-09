@@ -6,12 +6,13 @@ from openpyxl import Workbook
 
 
 # Load the data frames
-master_file_path = r"C:\Users\BSA-OliverJ'22\OneDrive\Desktop\OneDrive\Programming\Projects\GeneralizedSearchAlgo\Workbooks\HFM Master Data Frame for matching.xlsx"
-people_moves_file_path = r"C:\Users\BSA-OliverJ'22\OneDrive\Desktop\OneDrive\Programming\Projects\GeneralizedSearchAlgo\Workbooks\People Moves Data Frame.xlsx"
+irm_file_path = "K:\Market Maps\Interest Rates Map (K-Drive).xlsm"
 
-df_master = pd.read_excel(master_file_path, sheet_name='Master')
-df_people_moves = pd.read_excel(people_moves_file_path, sheet_name='People Moves')
+df_master = pd.read_excel(irm_file_path, sheet_name='Master', header=2, engine='openpyxl')
+df_people_moves = pd.read_excel(irm_file_path, sheet_name='People Moves', header=2, engine='openpyxl')
 
+print(df_master.columns)
+print(df_people_moves.columns)
 
 # Function to split and get last name
 
@@ -23,7 +24,7 @@ def fuzzy_match(row, df_master):
     column_mapping = {    
         'Current Firm': ('Firm', 3),
         'Former Firm': ('Prior Firm', 2),
-        'Current Title': ('Title AMALG', 3), 
+        'Current Title': ('Title', 3), 
         'Current Location': ('Location', 1)
     }   
 
@@ -76,5 +77,7 @@ matched_df = pd.DataFrame(matched_rows)
 
 
 # Save the matched DataFrame to a new Excel workbook
-with pd.ExcelWriter("k:\Market Maps\Interest Rates Map (K-Drive) (EXPERIMENTAL) - Copy.xlsm", engine='openpyxl') as writer:
-    matched_df.to_excel(writer, sheet_name='Matched Data', index=False)
+with pd.ExcelWriter("K:\Market Maps\Output2.xlsx", engine='openpyxl') as writer:
+    matched_df.to_excel(writer, sheet_name='Sheet1', index=False)
+
+# "k:\Market Maps\Interest Rates Map (K-Drive) (EXPERIMENTAL).xlsm"
